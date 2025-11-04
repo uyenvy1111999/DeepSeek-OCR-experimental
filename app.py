@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw
 import re
 from gradio.themes import Soft
 from gradio.themes.utils import colors, fonts, sizes
-from docling_core.types.doc import DoclingDocument, DocTagsDocument
+#from docling_core.types.doc import DoclingDocument, DocTagsDocument
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -242,4 +242,5 @@ with gr.Blocks(css=css, theme=steel_blue_theme) as demo:
     submit_btn.click(fn=process_ocr_task, inputs=[image_input, model_size, task_type, ref_text_input], outputs=[output_text, output_image])
 
 if __name__ == "__main__":
+
     demo.queue(max_size=20).launch(share=True, mcp_server=True, ssr_mode=False)
