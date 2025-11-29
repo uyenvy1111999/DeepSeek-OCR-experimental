@@ -1,0 +1,50 @@
+﻿@model lab456.ViewModels.CoursesViewModel
+@using Microsoft.AspNet.Identity;
+@using lab456.Models;
+@{
+    ViewBag.Title = "Attending";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Attending</h2>
+
+<ul class="course">
+    @foreach (var course in Model.UpcomingCourses)
+    {
+        <li>
+            <div class="date">
+                <div class="month">
+                    @course.DateTime.ToString("MM")
+                </div>
+                <div class="day">
+                    @course.DateTime.ToString("dd")
+                </div>
+            </div>
+            <div class="details">
+                <span class="lecturer" style="font-weight:bold">
+                    @course.Lecturer.Name
+                </span>
+                <br />
+                <span class="category">
+                    @course.Category.Name
+                </span>
+                @if (Model.ShowAction)
+                {
+                    var User_ID = User.Identity.GetUserId();
+                    ApplicationDbContext _dbContext = new ApplicationDbContext();
+                    bool isGoing = _dbContext.Attendances.Any(a => a.CourseId == course.Id && a.AttendeeId == User_ID);
+
+                    if (isGoing)
+                    {
+                        <button data-course-id="@course.Id" class="btn btn-info btn-sm js-toggle-attendance">Going</button>
+                    }
+                    else
+                    {
+                        <button data-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendance">Going?</button>
+                    }
+
+                }
+            </div>
+        </li>
+    }
+</ul>

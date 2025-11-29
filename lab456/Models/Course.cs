@@ -12,6 +12,7 @@ namespace lab456.Models
         {
             get; set;
         }
+        public bool IsCanceled { get; set; }
         public ApplicationUser Lecturer { get; set; }
         [Recquired]
         public string LecturerId { get; set; }
